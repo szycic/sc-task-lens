@@ -1,0 +1,98 @@
+<!-- System Administration Dashboard View: UI tuning, database retention rules, diagnostics and settings backups -->
+<section id="tab-admin" class="tab-content">
+  <div class="card" style="margin-bottom:24px;">
+    <h2 class="card-title">System Settings</h2>
+    <p class="card-subtitle" style="margin-bottom:20px;">
+      Tune dashboard interface refresh rates and configure automatic image retention rules.
+    </p>
+
+    <form id="admin-settings-form" onsubmit="saveAdminSettings(event)">
+      <div class="form-row" style="display:flex; gap:16px; flex-wrap:wrap; margin-bottom:16px;">
+        <div class="form-group" style="flex:1; min-width:200px;">
+          <label style="display:flex; align-items:center; gap:8px; font-weight:600; cursor:pointer;">
+            <input type="checkbox" id="admin-ui-refresh" checked>
+            <span>Auto-Refresh Dashboard UI</span>
+          </label>
+          <span class="field-hint">Enables background WebSocket reconnects & polling.</span>
+        </div>
+        <div class="form-group" style="flex:1; min-width:200px;" id="ui-refresh-interval-group">
+          <label for="admin-ui-interval">UI Refresh Interval (Seconds)</label>
+          <input type="number" id="admin-ui-interval" class="text-input" min="5" max="86400" value="30" required>
+        </div>
+      </div>
+
+      <div class="divider" style="margin:20px 0; border-top:1px solid rgba(255,255,255,0.06);"></div>
+
+      <div class="form-row" style="display:flex; gap:16px; flex-wrap:wrap; margin-bottom:16px;">
+        <div class="form-group" style="flex:1; min-width:200px;">
+          <label style="display:flex; align-items:center; gap:8px; font-weight:600; cursor:pointer;">
+            <input type="checkbox" id="admin-purge-synced">
+            <span>Auto-Purge Synced Screenshots</span>
+          </label>
+          <span class="field-hint">Automatically purge task records successfully pushed to Notion.</span>
+        </div>
+        <div class="form-group" style="flex:1; min-width:200px;" id="purge-synced-group">
+          <label for="admin-purge-synced-days">Retention (Days)</label>
+          <input type="number" id="admin-purge-synced-days" class="text-input" min="1" max="365" value="30" required>
+        </div>
+      </div>
+
+      <div class="form-row" style="display:flex; gap:16px; flex-wrap:wrap; margin-bottom:16px;">
+        <div class="form-group" style="flex:1; min-width:200px;">
+          <label style="display:flex; align-items:center; gap:8px; font-weight:600; cursor:pointer;">
+            <input type="checkbox" id="admin-purge-ignored">
+            <span>Auto-Purge Ignored Screenshots</span>
+          </label>
+          <span class="field-hint">Automatically purge screenshots marked as ignored.</span>
+        </div>
+        <div class="form-group" style="flex:1; min-width:200px;" id="purge-ignored-group">
+          <label for="admin-purge-ignored-days">Retention (Days)</label>
+          <input type="number" id="admin-purge-ignored-days" class="text-input" min="1" max="365" value="30" required>
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:flex-end; margin-top:20px;">
+        <button type="submit" class="btn btn-primary">💾 Save Settings</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="card" style="margin-bottom:24px;">
+    <h2 class="card-title">Diagnostics Utility</h2>
+    <p class="card-subtitle" style="margin-bottom:16px;">
+      Run system audits testing database integrity, file storage write checks, Notion DB schema access, and Vision AI credentials.
+    </p>
+
+    <div style="display:flex; gap:12px; margin-bottom:20px; align-items:center;">
+      <button class="btn btn-primary" onclick="runDiagnostics()">⚡ Run System Diagnostics</button>
+      <span id="diagnostics-summary-badge" class="connection-badge status-disconnected">Bypassed</span>
+    </div>
+
+    <div id="diagnostics-log" class="diagnostics-log" style="display:none;">
+      <!-- Diagnostic check list loaded here dynamically -->
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:24px;">
+    <h2 class="card-title">Configuration Backup & Transfer</h2>
+    <p class="card-subtitle" style="margin-bottom:20px;">
+      Export or restore your custom Notion database column mapping and administrative settings via JSON files.
+    </p>
+    <div style="display:flex; gap:12px; flex-wrap:wrap;">
+      <a href="/api/admin/config/export" class="btn btn-outline" download="sc-task-lens-config.json">📤 Export Config Backup</a>
+      <button class="btn btn-outline" onclick="openConfigImportModal()">📥 Import Config Backup</button>
+    </div>
+  </div>
+
+  <div class="card border-danger">
+    <h2 class="card-title text-danger">Danger Zone</h2>
+    <p class="card-subtitle" style="margin-bottom:20px;">
+      Irreversible administrative options. Exercise extreme caution.
+    </p>
+    <div style="display:flex; gap:12px; flex-wrap:wrap;">
+      <button class="btn btn-outline btn-danger" onclick="purgeIgnoredDanger()">🚫 Purge Ignored Candidates</button>
+      <button class="btn btn-outline btn-danger" onclick="resetSettingsDanger()">🔄 Reset Factory Defaults</button>
+      <button class="btn btn-danger" onclick="clearAllInboxDanger()">⚠️ Purge All System Data</button>
+    </div>
+  </div>
+</section>

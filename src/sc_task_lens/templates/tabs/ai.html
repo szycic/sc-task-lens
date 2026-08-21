@@ -1,0 +1,46 @@
+<!-- AI Extraction Engine Settings View: Configure vision models and test connections -->
+<section id="tab-ai" class="tab-content">
+  <div class="card">
+    <h2 class="card-title">Vision AI Extraction Engine Settings</h2>
+    <p class="card-subtitle" style="margin-bottom:20px;">
+      Configure the AI model used to look at uploaded screenshots and extract structured tasks.
+    </p>
+
+    <form id="ai-settings-form" onsubmit="saveAISettings(event)">
+      <div class="form-group">
+        <label for="ai-provider">AI Provider</label>
+        <select id="ai-provider" class="select-input" onchange="toggleAIProviderFields(this.value)">
+          <option value="mock">Offline Mock Engine (Local testing, no API key needed)</option>
+          <option value="groq">Groq Cloud (High-performance Llama 3.2 Vision)</option>
+          <option value="openai">OpenAI (GPT-4o / GPT-4o-mini)</option>
+          <option value="gemini">Google Gemini (Gemini 1.5 Flash)</option>
+        </select>
+      </div>
+
+      <div class="form-group ai-credential-field" id="ai-api-key-group">
+        <label for="ai-api-key">API Key</label>
+        <input type="password" id="ai-api-key" class="text-input" placeholder="Enter API secret key">
+      </div>
+
+      <div class="form-group ai-credential-field" id="ai-model-name-group">
+        <label for="ai-model-name">Model Name</label>
+        <select id="ai-model-name" class="select-input">
+          <!-- Dynamic models filled in JS depending on provider -->
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="ai-custom-prompt">Custom Prompts Instructions (Optional)</label>
+        <textarea id="ai-custom-prompt" class="textarea-input" placeholder="e.g. Extract task titles in Spanish, automatically tag bugs, etc." rows="4"></textarea>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px;">
+        <span id="ai-connection-status" class="connection-badge status-disconnected">Bypassed (Offline)</span>
+        <div style="display:flex; gap:10px;">
+          <button type="button" class="btn btn-outline" onclick="testAIConnection()">⚡ Test Connection</button>
+          <button type="submit" class="btn btn-primary">💾 Save Settings</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</section>

@@ -1,0 +1,57 @@
+<!-- Keyboard Shortcuts Help Modal -->
+<div id="shortcuts-help-modal" class="modal-backdrop" onclick="closeShortcutsHelpModal(event)">
+  <div class="modal-container">
+    <div class="modal-header">
+      <h3 class="modal-title">Keyboard Shortcuts</h3>
+      <button class="modal-close-btn" onclick="closeShortcutsHelpModal(event, true)">&times;</button>
+    </div>
+    <div class="modal-body">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Shortcut</th>
+            <th>Action Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><kbd>?</kbd></td>
+            <td>Toggle this keyboard shortcuts menu</td>
+          </tr>
+          <tr>
+            <td><kbd>Tab</kbd> / <kbd>Shift+Tab</kbd></td>
+            <td>Focus next / previous card in list</td>
+          </tr>
+          <tr>
+            <td><kbd>j</kbd> / <kbd>k</kbd></td>
+            <td>Focus next / previous card (Vim-style)</td>
+          </tr>
+          <tr>
+            <td><kbd>Space</kbd></td>
+            <td>Select / deselect focused card</td>
+          </tr>
+          <tr>
+            <td><kbd>o</kbd> / <kbd>Enter</kbd></td>
+            <td>Open focused task review modal</td>
+          </tr>
+          <tr>
+            <td><kbd>a</kbd> / <kbd>Esc</kbd></td>
+            <td>Select all visible cards / Close active modals</td>
+          </tr>
+          <tr>
+            <td><kbd>i</kbd></td>
+            <td>Ignore focused candidate card</td>
+          </tr>
+          <tr>
+            <td><kbd>r</kbd></td>
+            <td>Trigger Vision AI extraction on focused card</td>
+          </tr>
+          <tr>
+            <td><kbd>p</kbd></td>
+            <td>Push focused task candidate directly to Notion</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

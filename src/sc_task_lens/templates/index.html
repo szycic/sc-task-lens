@@ -1,0 +1,82 @@
+<!-- SC Task Lens Single-Page Application Master Layout -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Lens</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/style.css?v={{ app_version }}">
+  <link rel="manifest" href="/static/site.webmanifest">
+  <link rel="apple-touch-icon" href="/static/assets/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/static/assets/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/static/assets/favicon-16x16.png">
+</head>
+
+<body>
+
+  <div class="app-container">
+    <header class="app-header">
+      <div class="brand">
+        <button class="mobile-menu-btn" id="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Toggle Menu">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+        <div>
+          <h1 class="brand-title">Task Lens</h1>
+          <p class="brand-subtitle">Smart Screenshot Ingestion & AI-Powered Notion Task Sync</p>
+        </div>
+      </div>
+    </header>
+
+    <div id="nav-drawer-backdrop" class="nav-drawer-backdrop" onclick="toggleMobileMenu(false)"></div>
+
+    <nav class="nav-tabs" id="nav-tabs">
+      <div class="drawer-header">
+        <span class="drawer-title">Navigation Menu</span>
+        <button class="drawer-close-btn" onclick="toggleMobileMenu(false)">&times;</button>
+      </div>
+      <button class="nav-tab active" data-tab="inbox">
+        <span>📸</span> Inbox
+      </button>
+      <button class="nav-tab" data-tab="notion">
+        <span>🗺️</span> Notion Settings
+      </button>
+      <button class="nav-tab" data-tab="ai">
+        <span>⚙️</span> AI Settings
+      </button>
+      <button class="nav-tab" data-tab="admin">
+        <span>🛠️</span> Admin Panel
+      </button>
+    </nav>
+
+    {% include 'tabs/inbox.html' %}
+    {% include 'tabs/notion.html' %}
+    {% include 'tabs/ai.html' %}
+    {% include 'tabs/admin.html' %}
+  </div>
+
+  {% include 'modals/task_review.html' %}
+  {% include 'modals/shortcuts_help.html' %}
+  {% include 'modals/config_import.html' %}
+
+  <div id="toast-container"></div>
+
+  <script src="/static/js/utils.js?v={{ app_version }}"></script>
+  <script src="/static/js/navigation.js?v={{ app_version }}"></script>
+  <script src="/static/js/inbox.js?v={{ app_version }}"></script>
+  <script src="/static/js/task_review.js?v={{ app_version }}"></script>
+  <script src="/static/js/notion.js?v={{ app_version }}"></script>
+  <script src="/static/js/ai_settings.js?v={{ app_version }}"></script>
+  <script src="/static/js/admin.js?v={{ app_version }}"></script>
+  <script src="/static/js/app.js?v={{ app_version }}"></script>
+</body>
+
+</html>

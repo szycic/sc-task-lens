@@ -1,0 +1,57 @@
+<!-- Notion Integration Settings Tab: Configures credentials and custom database column mapping -->
+<section id="tab-notion" class="tab-content">
+  <div class="card" style="margin-bottom:24px;">
+    <h2 class="card-title">Notion Connection Details</h2>
+    <p class="card-subtitle" style="margin-bottom:20px;">
+      Establish a connection to your target Notion database using a custom Integration token.
+    </p>
+
+    <form id="notion-config-form" onsubmit="saveNotionConfig(event)">
+      <div class="form-group">
+        <label for="notion-api-token">Notion API Key / Secret Token</label>
+        <input type="password" id="notion-api-token" class="text-input" placeholder="secret_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx" required>
+        <span class="field-hint">Create an integration in the <a href="https://www.notion.so/my-integrations" target="_blank">Notion Developers Portal</a> and share the database with it.</span>
+      </div>
+
+      <div class="form-group">
+        <label for="notion-database-id">Database ID</label>
+        <input type="text" id="notion-database-id" class="text-input" placeholder="Enter database ID or paste the full database URL" required>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px;">
+        <span id="notion-connection-status" class="connection-badge status-disconnected">Not Connected</span>
+        <div style="display:flex; gap:10px;">
+          <button type="button" class="btn btn-outline" onclick="fetchNotionSchema()">🔄 Fetch Schema</button>
+          <button type="submit" class="btn btn-primary">💾 Save Connection</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div class="card" id="mapping-card" style="display: none;">
+    <h2 class="card-title">Notion Database Field Mapping</h2>
+    <p class="card-subtitle" style="margin-bottom:20px;">
+      Map screenshot details and AI output variables to specific properties inside your target Notion database schema.
+    </p>
+
+    <div style="overflow-x:auto;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th style="width:200px;">Task Variable</th>
+            <th style="width:280px;">Notion Database Property</th>
+            <th>Type</th>
+            <th>Value Options / Action</th>
+          </tr>
+        </thead>
+        <tbody id="mapping-table-body">
+          <!-- Dynamic field rows loaded via javascript -->
+        </tbody>
+      </table>
+    </div>
+
+    <div style="display:flex; justify-content:flex-end; margin-top:20px;">
+      <button class="btn btn-primary" onclick="saveFieldMappings()">💾 Save Field Mapping</button>
+    </div>
+  </div>
+</section>

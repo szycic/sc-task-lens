@@ -1,0 +1,95 @@
+<!-- Inbox Dashboard View: Drag-and-Drop Ingestion, stage filtering, and candidate card grid -->
+<section id="tab-inbox" class="tab-content active">
+  
+  <!-- Drag and Drop Screenshot Ingestion Zone -->
+  <div id="dropzone" class="upload-dropzone">
+    <div class="dropzone-content">
+      <span class="dropzone-icon">📤</span>
+      <h3>Drag & Drop Screenshot Here</h3>
+      <p>Or click to browse from files (.png, .jpg, .jpeg)</p>
+      <input type="file" id="file-input" accept="image/*" style="display: none;" multiple>
+    </div>
+  </div>
+
+  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; flex-wrap:wrap; gap:12px;">
+    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+      <button class="btn btn-outline btn-sm inbox-filter-btn active" id="filter-btn-PENDING"
+        onclick="filterInbox('PENDING')">Pending <span class="tab-badge" id="badge-PENDING">0</span></button>
+      <button class="btn btn-outline btn-sm inbox-filter-btn" id="filter-btn-AI_PROCESSED"
+        onclick="filterInbox('AI_PROCESSED')">AI Processed <span class="tab-badge"
+          id="badge-AI_PROCESSED">0</span></button>
+      <button class="btn btn-outline btn-sm inbox-filter-btn" id="filter-btn-CREATED"
+        onclick="filterInbox('CREATED')">Synced to Notion <span class="tab-badge" id="badge-CREATED">0</span></button>
+      <button class="btn btn-outline btn-sm inbox-filter-btn" id="filter-btn-IGNORED"
+        onclick="filterInbox('IGNORED')">Ignored <span class="tab-badge" id="badge-IGNORED">0</span></button>
+      <button class="btn btn-outline btn-sm inbox-filter-btn" id="filter-btn-ALL" onclick="filterInbox('ALL')">All <span
+          class="tab-badge" id="badge-ALL">0</span></button>
+    </div>
+
+    <div style="display:flex; align-items:center; gap:12px;">
+      <span id="last-synced-indicator" style="font-size:12px; color:var(--text-dim); font-weight:500;">
+        Last updated: --
+      </span>
+    </div>
+  </div>
+
+  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; background:rgba(255,255,255,0.02); padding:10px 14px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); flex-wrap:wrap; gap:12px;">
+    <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+      <div style="display:flex; align-items:center; gap:6px;">
+        <span style="font-size:12px; color:var(--text-dim); font-weight:600;">Search:</span>
+        <input type="text" id="filter-search" class="select-input" placeholder="Search title, summary, project..."
+          style="padding:4px 10px; font-size:12px; width:220px;" oninput="handleSearchInput()">
+      </div>
+    </div>
+
+    <div style="display:flex; align-items:center; gap:6px;">
+      <span style="font-size:12px; color:var(--text-dim); font-weight:600;">Sort By:</span>
+      <select id="sort-candidates" class="select-input" style="padding:4px 10px; font-size:12px; width:auto;"
+        onchange="loadCandidates()">
+        <option value="NEWEST">Newest Uploaded First</option>
+        <option value="OLDEST">Oldest Uploaded First</option>
+        <option value="UPDATED_NEWEST">Newest Updated First</option>
+        <option value="UPDATED_OLDEST">Oldest Updated First</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="bulk-action-bar"
+    style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; background:rgba(99,102,241,0.08); padding:8px 14px; border-radius:8px; border:1px solid rgba(99,102,241,0.2); flex-wrap:wrap; gap:10px;">
+    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+      <label
+        style="font-size:12px; font-weight:600; color:var(--text-main); display:flex; align-items:center; gap:6px; cursor:pointer;">
+        <input type="checkbox" id="select-all-cb" onchange="toggleSelectAllCandidates(this.checked)">
+        <span>Select All</span>
+      </label>
+      <span id="bulk-selected-count" style="font-size:12px; color:var(--text-dim); font-weight:500;">
+        (0 selected)
+      </span>
+      <span class="shortcut-hints"
+        style="font-size:11px; color:var(--text-dim); margin-left:8px; display:inline-flex; align-items:center; gap:4px; opacity:0.85;">
+        <kbd>Tab</kbd> / <kbd>j</kbd><kbd>k</kbd> switch &bull; <kbd>Space</kbd> select &bull;
+        <kbd>A</kbd> select all &bull; <kbd>?</kbd> shortcuts
+      </span>
+    </div>
+
+    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+      <button class="btn btn-primary btn-sm" id="btn-bulk-process" onclick="bulkProcessCandidates()" disabled>
+        🤖 Bulk Extract Tasks
+      </button>
+      <button class="btn btn-outline btn-sm" id="btn-bulk-ignore" onclick="bulkIgnoreCandidates()" disabled>
+        🚫 Bulk Ignore
+      </button>
+      <button class="btn btn-outline btn-sm" id="btn-bulk-unignore" onclick="bulkUnignoreCandidates()" disabled>
+        🔄 Bulk Unignore
+      </button>
+    </div>
+  </div>
+
+  <div id="candidates-list" class="candidates-grid">
+    <!-- Dynamically loaded gallery cards representing screenshot candidates -->
+  </div>
+
+  <!-- Pagination Controls -->
+  <div id="inbox-pagination" class="pagination-container">
+  </div>
+</section>

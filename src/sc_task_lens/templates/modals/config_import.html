@@ -1,0 +1,24 @@
+<!-- Configuration Import Modal -->
+<div id="config-import-modal" class="modal-backdrop" onclick="closeConfigImportModal(event)">
+  <div class="modal-container">
+    <div class="modal-header">
+      <h3 class="modal-title">Import Configuration Backup</h3>
+      <button class="modal-close-btn" onclick="closeConfigImportModal(event, true)">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 20px;">
+        Select a configuration JSON file backup exported from SC Task Lens or SC Mail Hub to restore custom Notion property mappings and system configuration settings.
+      </p>
+      <form id="config-import-form" onsubmit="handleConfigImport(event)">
+        <div class="form-group" style="margin-bottom: 20px;">
+          <label for="config-file-input">Select Configuration File</label>
+          <input type="file" id="config-file-input" class="text-input" accept=".json" required>
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:10px;">
+          <button type="button" class="btn btn-outline" onclick="closeConfigImportModal(null, true)">Cancel</button>
+          <button type="submit" class="btn btn-primary">📥 Import Backup</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
