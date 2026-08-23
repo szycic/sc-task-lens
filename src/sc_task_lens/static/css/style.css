@@ -695,6 +695,9 @@ body {
   .mobile-only {
     display: block !important;
   }
+  .shortcut-hints {
+    display: none !important;
+  }
 
   .review-split-layout {
     grid-template-columns: 1fr;
