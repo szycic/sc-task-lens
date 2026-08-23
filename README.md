@@ -8,15 +8,16 @@ Designed for lightning-fast visual task capture, SC Task Lens provides a complet
 
 ## Key Features
 
-- **Drag-and-Drop Ingestion**: Drag screenshots directly into the browser dropzone or paste from clipboard to queue them for task processing.
+- **Drag-and-Drop & Clipboard Paste Ingestion**: Paste screenshots directly from the clipboard (`Ctrl+V` / `Cmd+V`) anywhere on the page, or drag files into the responsive touch-optimized dropzone.
 - **Vision-Based AI Extraction**: Process visual text, code, mockups, or reminders using state-of-the-art vision models (e.g. Groq `qwen/qwen3.6-27b`, OpenAI `gpt-4o-mini`, or Google Gemini Flash).
-- **Notion Database Integration**: Map screenshot metadata and AI-extracted fields (Title, Summary, Priority, Project, Start Date, Due Date, Source URL, and Image Attachment) to custom Notion database properties.
+- **Notion Database Integration & Dynamic Syncing**: Map screenshot metadata and AI-extracted fields (Title, Description, Priority, Start Date, Due Date, Source URL, and Image Attachment) to custom Notion database properties. Sync new tasks or update existing Notion pages directly using the integrated `Update in Notion` PATCH sync mechanism.
 - **Progressive Web App (PWA)**: Installable directly to your Desktop or mobile home screen via custom Service Worker (`sw.js`) and web manifest configurations.
-- **Vim-Style Keyboard Shortcuts**: Manage your inbox at the speed of thought with global hotkeys:
+- **Power-User Keyboard Shortcuts**: Manage your inbox at the speed of thought with global hotkeys:
   - `j`/`k` for scrolling cards.
   - `Space` to check/select cards.
   - `o`/`Enter` to open split review modal.
   - `i` to ignore, `r` to analyze, and `p` to push directly to Notion.
+  - `Ctrl + S` to save progress and `Ctrl + Enter` to sync/update tasks to Notion (inside the modal).
 - **Real-Time WebSocket Updates**: Live WebSocket updates sync state (upload success, extraction completions) instantly across all open browser tabs.
 - **Diagnostics & Backup Utility**: Verify configuration keys and database connections with health metrics, and export or restore configurations via JSON backups.
 
@@ -133,6 +134,7 @@ PYTHONPATH=src python -m sc_task_lens.main
 Once running, access the web dashboard in your browser:
 - **Dashboard UI**: [http://127.0.0.1:8000](http://127.0.0.1:8000)
 - **Interactive OpenAPI Docs**: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+- **ReDoc Documentation**: [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
 
 ---
 
@@ -162,7 +164,9 @@ pytest -v
 | `i` | Mark focused card as Ignored |
 | `r` | Trigger AI Vision re-extraction on focused candidate |
 | `p` | Direct sync/push focused candidate to Notion |
-| `Escape` | Close any open modal dialogs |
+| `Ctrl + S` | Save review modal changes (inside modal) |
+| `Ctrl + Enter` | Sync / Update task to Notion (inside modal) |
+| `Escape` | Close any open modal dialogs (works within input fields) |
 
 ---
 
@@ -179,7 +183,7 @@ All API routes are prefixed under `/api`:
 | `/api/inbox/candidates/{id}` | `GET` | Retrieve candidate fields and screenshot URL |
 | `/api/inbox/candidates/{id}` | `PUT` | Save changes made during manual verification checks |
 | `/api/inbox/candidates/{id}/prepare-task` | `POST` | Run AI Vision task extraction (OCR, summaries, and priority) |
-| `/api/inbox/candidates/{id}/create-task` | `POST` | Push candidate details and upload screenshot file to Notion page |
+| `/api/inbox/candidates/{id}/create-task` | `POST` | Push candidate details to Notion page (updates existing if already synced) |
 | `/api/inbox/candidates/{id}/ignore` | `POST` | Ignore task candidate from list |
 | `/api/inbox/candidates/{id}/unignore` | `POST` | Restore ignored task candidate |
 | `/api/inbox/candidates/{id}` | `DELETE` | Permanently delete task candidate and screenshots |
