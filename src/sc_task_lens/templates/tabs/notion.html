@@ -29,29 +29,33 @@
   </div>
 
   <div class="card" id="mapping-card" style="display: none;">
-    <h2 class="card-title">Notion Database Field Mapping</h2>
-    <p class="card-subtitle" style="margin-bottom:20px;">
-      Map screenshot details and AI output variables to specific properties inside your target Notion database schema.
+    <div class="card-title">
+      <span>Notion Field & Priority Option Mapping</span>
+    </div>
+    <p style="font-size:14px; color:var(--text-muted); margin-bottom:16px;">
+      Map each task detail to your Notion database properties. You can map candidate titles, summaries, priority,
+      due dates, or source links to any matching property in Notion.
     </p>
 
-    <div style="overflow-x:auto;">
-      <table class="data-table">
+    <div class="table-responsive">
+      <table class="mapping-table">
         <thead>
           <tr>
-            <th style="width:200px;">Task Variable</th>
-            <th style="width:280px;">Notion Database Property</th>
-            <th>Type</th>
-            <th>Value Options / Action</th>
+            <th style="width: 35%;">Task Candidate Detail</th>
+            <th style="width: 20%;">Internal Field</th>
+            <th style="width: 30%;">Notion Database Property</th>
+            <th style="width: 15%;">Property Type</th>
           </tr>
         </thead>
         <tbody id="mapping-table-body">
-          <!-- Dynamic field rows loaded via javascript -->
         </tbody>
       </table>
     </div>
 
-    <div style="display:flex; justify-content:flex-end; margin-top:20px;">
-      <button class="btn btn-primary" onclick="saveFieldMappings()">💾 Save Field Mapping</button>
+    <div style="margin-top:20px; text-align:right;">
+      <button class="btn btn-success" onclick="saveFieldMappings()">
+        💾 Save Custom Field Mapping
+      </button>
     </div>
   </div>
 </section>

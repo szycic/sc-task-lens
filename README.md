@@ -9,7 +9,7 @@ Designed for lightning-fast visual task capture, SC Task Lens provides a complet
 ## Key Features
 
 - **Drag-and-Drop Ingestion**: Drag screenshots directly into the browser dropzone or paste from clipboard to queue them for task processing.
-- **Vision-Based AI Extraction**: Process visual text, code, mockups, or reminders using state-of-the-art vision models (e.g. Groq `llama-3.2-11b-vision-preview`, OpenAI `gpt-4o-mini`, or Google Gemini Flash).
+- **Vision-Based AI Extraction**: Process visual text, code, mockups, or reminders using state-of-the-art vision models (e.g. Groq `qwen/qwen3.6-27b`, OpenAI `gpt-4o-mini`, or Google Gemini Flash).
 - **Notion Database Integration**: Map screenshot metadata and AI-extracted fields (Title, Summary, Priority, Project, Start Date, Due Date, Source URL, and Image Attachment) to custom Notion database properties.
 - **Progressive Web App (PWA)**: Installable directly to your Desktop or mobile home screen via custom Service Worker (`sw.js`) and web manifest configurations.
 - **Vim-Style Keyboard Shortcuts**: Manage your inbox at the speed of thought with global hotkeys:

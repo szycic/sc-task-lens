@@ -139,33 +139,16 @@ function renderMappingTable(mappings) {
 
     let valMapObj = {};
     if (m.value_mappings_json) {
-      try { valMapObj = JSON.parse(m.value_mappings_json) || {}; } catch (e) {}
+      try { valMapObj = JSON.parse(m.value_mappings_json) || {}; } catch (e) { }
     }
 
-    const showValMapping = m.task_field === "priority" && availableOptions.length > 0;
+    const showValMapping = m.task_field === "priority";
 
-    let valueMappingFormHtml = "";
-    if (showValMapping) {
-      valueMappingFormHtml = `
-        <div style="margin-top:10px; background:rgba(0,0,0,0.15); padding:10px; border-radius:6px; border:1px solid var(--border-color);">
-          <div style="font-size:12px; font-weight:600; color:var(--text-main); margin-bottom:8px;">Map Priority Select Options</div>
-          <div style="display:flex; flex-direction:column; gap:6px;">
-            ${["HIGH", "MEDIUM", "LOW"].map(prio => {
-              const currentVal = valMapObj[prio] || "";
-              return `
-                <div style="display:flex; align-items:center; gap:8px;">
-                  <span style="font-size:11px; width:70px; color:var(--text-muted);">${prio}:</span>
-                  <select class="value-mapping-select select-input" data-source-val="${prio}" style="padding:4px 8px; font-size:12px;">
-                    <option value="">-- Leave Unmapped / Use Option name --</option>
-                    ${availableOptions.map(opt => `<option value="${escapeHtml(opt)}" ${opt === currentVal ? 'selected' : ''}>${escapeHtml(opt)}</option>`).join("")}
-                  </select>
-                </div>
-              `;
-            }).join("")}
-          </div>
-        </div>
-      `;
-    }
+    const optionsPillsHtml = availableOptions.length > 0
+      ? `<div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:4px;">
+           ${availableOptions.map(opt => `<span class="type-pill" style="background:rgba(59,130,246,0.25); color:#93c5fd; font-weight:600; padding:4px 8px; border-radius:4px;">${escapeHtml(opt)}</span>`).join("")}
+         </div>`
+      : `<span style="font-size:12px; color:var(--text-dim);">No select/status options found for this property. (Default fallback: HIGH, MEDIUM, LOW)</span>`;
 
     return `
       <tr data-field="${m.task_field}">
@@ -174,113 +157,101 @@ function renderMappingTable(mappings) {
           <div style="font-size:12px; color:var(--text-dim);">${escapeHtml(m.description)}</div>
         </td>
         <td>
-          <select class="mapping-notion-prop-select select-input" onchange="handleMappingPropChange(this)" style="padding:6px 10px; font-size:13px;">
+          <span class="type-pill">${m.task_field}</span>
+        </td>
+        <td>
+          <select class="select-input property-select" onchange="onPropertySelectChange(this)" style="padding:6px 10px; font-size:13px; width:100%;">
             ${selectOptions}
           </select>
+
+          ${showValMapping ? `
+            <div class="val-mapping-box" style="margin-top:8px; padding:10px; background:rgba(0,0,0,0.3); border:1px solid var(--border-color); border-radius:8px;">
+              <div style="font-size:12px; font-weight:700; color:var(--text-main); margin-bottom:4px;">
+                📌 Mapped Notion Priority Options:
+              </div>
+              <div class="options-pills-container">${optionsPillsHtml}</div>
+            </div>
+          ` : ''}
         </td>
-        <td>
-          <span class="status-badge" style="font-size:11px; background:rgba(255,255,255,0.05); border:1px solid var(--border-color);" id="prop-type-${m.task_field}">
-            ${escapeHtml(m.notion_property_type || "None")}
-          </span>
-        </td>
-        <td>
-          <div id="mapping-options-wrap-${m.task_field}">
-            ${showValMapping ? valueMappingFormHtml : `<span style="font-size:12px; color:var(--text-dim);">${m.notion_property_type === 'files' ? 'Attachments upload automatically' : 'Direct mapping (No mapping options required)'}</span>`}
-          </div>
+        <td class="property-type-cell">
+          ${m.notion_property_type ? `<span class="type-pill" style="background:rgba(16,185,129,0.15); color:#6ee7b7;">${m.notion_property_type}</span>` : '<span style="color:var(--text-dim); font-size:12px;">Not Mapped</span>'}
         </td>
       </tr>
     `;
   }).join("");
 }
 
-function handleMappingPropChange(selectEl) {
-  const tr = selectEl.closest("tr");
-  const field = tr.getAttribute("data-field");
+function onPropertySelectChange(selectEl) {
+  const row = selectEl.closest("tr");
+  const typeCell = row.querySelector(".property-type-cell");
   const selectedOpt = selectEl.options[selectEl.selectedIndex];
-  const propType = selectedOpt.getAttribute("data-type") || "None";
+  const pType = selectedOpt.getAttribute("data-type") || "";
+  const propName = selectEl.value;
 
-  const typeEl = document.getElementById(`prop-type-${field}`);
-  if (typeEl) typeEl.textContent = propType;
+  if (pType) {
+    typeCell.innerHTML = `<span class="type-pill" style="background:rgba(16,185,129,0.15); color:#6ee7b7;">${pType}</span>`;
+  } else {
+    typeCell.innerHTML = `<span style="color:var(--text-dim); font-size:12px;">Not Mapped</span>`;
+  }
 
-  // Refresh mapping table body row if we selected a select type for priority
-  const matchedProp = fetchedNotionProperties.find(p => p.name === selectEl.value);
-  const availableOptions = matchedProp && matchedProp.options ? matchedProp.options : [];
-  const optionsWrap = document.getElementById(`mapping-options-wrap-${field}`);
-
-  if (optionsWrap) {
-    if (field === "priority" && availableOptions.length > 0) {
-      optionsWrap.innerHTML = `
-        <div style="margin-top:10px; background:rgba(0,0,0,0.15); padding:10px; border-radius:6px; border:1px solid var(--border-color);">
-          <div style="font-size:12px; font-weight:600; color:var(--text-main); margin-bottom:8px;">Map Priority Select Options</div>
-          <div style="display:flex; flex-direction:column; gap:6px;">
-            ${["HIGH", "MEDIUM", "LOW"].map(prio => {
-              return `
-                <div style="display:flex; align-items:center; gap:8px;">
-                  <span style="font-size:11px; width:70px; color:var(--text-muted);">${prio}:</span>
-                  <select class="value-mapping-select select-input" data-source-val="${prio}" style="padding:4px 8px; font-size:12px;">
-                    <option value="">-- Leave Unmapped --</option>
-                    ${availableOptions.map(opt => `<option value="${escapeHtml(opt)}">${escapeHtml(opt)}</option>`).join("")}
-                  </select>
-                </div>
-              `;
-            }).join("")}
-          </div>
+  const pillsContainer = row.querySelector(".options-pills-container");
+  if (pillsContainer) {
+    const matchedProp = fetchedNotionProperties.find(p => p.name === propName);
+    const availableOptions = matchedProp && matchedProp.options ? matchedProp.options : [];
+    if (availableOptions.length > 0) {
+      pillsContainer.innerHTML = `
+        <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:4px;">
+          ${availableOptions.map(opt => `<span class="type-pill" style="background:rgba(59,130,246,0.25); color:#93c5fd; font-weight:600; padding:4px 8px; border-radius:4px;">${escapeHtml(opt)}</span>`).join("")}
         </div>
       `;
     } else {
-      optionsWrap.innerHTML = `<span style="font-size:12px; color:var(--text-dim);">${propType === 'files' ? 'Attachments upload automatically' : 'Direct mapping (No mapping options required)'}</span>`;
+      pillsContainer.innerHTML = `<span style="font-size:12px; color:var(--text-dim);">No select/status options found for this property. (Default fallback: HIGH, MEDIUM, LOW)</span>`;
     }
   }
 }
 
 async function saveFieldMappings() {
   const rows = document.querySelectorAll("#mapping-table-body tr");
-  const mappings = [];
+  const payloadMappings = [];
 
-  rows.forEach(tr => {
-    const taskField = tr.getAttribute("data-field");
-    const selectProp = tr.querySelector(".mapping-notion-prop-select");
-    const notionPropName = selectProp.value;
-    const selectedOpt = selectProp.options[selectProp.selectedIndex];
-    const notionPropType = selectedOpt.getAttribute("data-type") || "";
+  rows.forEach(row => {
+    const taskField = row.getAttribute("data-field");
+    const selectEl = row.querySelector(".property-select");
+    const propName = selectEl.value;
+    const selectedOpt = selectEl.options[selectEl.selectedIndex];
+    const propType = selectedOpt.getAttribute("data-type") || "";
 
-    // Serialize value mappings if priority
-    let valueMappingsJson = null;
-    if (taskField === "priority") {
-      const valSelects = tr.querySelectorAll(".value-mapping-select");
-      if (valSelects.length > 0) {
-        const valMap = {};
-        valSelects.forEach(sel => {
-          const sourceVal = sel.getAttribute("data-source-val");
-          const targetVal = sel.value;
-          if (targetVal) {
-            valMap[sourceVal] = targetVal;
-          }
-        });
-        valueMappingsJson = JSON.stringify(valMap);
-      }
-    }
+    const valInputs = row.querySelectorAll(".val-map-input");
+    let valMapObj = {};
+    valInputs.forEach(input => {
+      const k = input.getAttribute("data-key");
+      const v = input.value.trim();
+      if (v) valMapObj[k] = v;
+    });
+    const valueMappingsJson = Object.keys(valMapObj).length > 0 ? JSON.stringify(valMapObj) : null;
 
-    mappings.push({
+    payloadMappings.push({
       task_field: taskField,
-      notion_property_name: notionPropName,
-      notion_property_type: notionPropType,
+      notion_property_name: propName,
+      notion_property_type: propType,
       value_mappings_json: valueMappingsJson
     });
   });
+
+  showToast("Saving custom Notion field mappings...", "info");
 
   try {
     const res = await fetch("/api/notion/mapping", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ mappings })
+      body: JSON.stringify({ mappings: payloadMappings })
     });
+    const data = await res.json();
     if (res.ok) {
-      showToast("Notion field mappings saved successfully!", "success");
+      showToast(data.message || "Notion field mappings saved successfully!", "success");
       loadNotionConfig();
     } else {
-      const err = await res.json();
-      showToast(err.detail || "Failed to save mapping config", "error");
+      showToast(data.detail || "Failed to save mapping", "error");
     }
   } catch (err) {
     showToast(`Error: ${err.message}`, "error");

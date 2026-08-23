@@ -44,7 +44,7 @@ def setup_defaults(db: Session):
         db.add(AISettings(
             provider="mock",
             api_key=settings.OPENAI_API_KEY or settings.GEMINI_API_KEY or settings.GROQ_API_KEY or "",
-            model_name="llama-3.2-11b-vision-preview"
+            model_name="qwen/qwen3.6-27b"
         ))
         
     sys_set = db.query(SystemSettings).first()
@@ -62,7 +62,6 @@ def setup_defaults(db: Session):
         ("start_date", "Start Date", "date"),
         ("deadline", "Due Date", "date"),
         ("source_url", "URL", "url"),
-        ("project", "Project", "select"),
         ("attachment", "Attachment", "files")
     ]
 
@@ -75,6 +74,8 @@ def setup_defaults(db: Session):
                 notion_property_type=p_type
             ))
 
+    # Delete project mapping from db if it exists
+    db.query(NotionFieldMapping).filter(NotionFieldMapping.task_field == "project").delete()
     db.commit()
 
 

@@ -689,6 +689,13 @@ body {
 }
 
 @media (max-width: 768px) {
+  .desktop-only {
+    display: none !important;
+  }
+  .mobile-only {
+    display: block !important;
+  }
+
   .review-split-layout {
     grid-template-columns: 1fr;
     max-height: 80vh;
@@ -733,6 +740,91 @@ body {
 
 .data-table tbody tr:hover {
   background: rgba(255, 255, 255, 0.01);
+}
+
+/* Notion Mapping Table parity with sc-mail-hub */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.mapping-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+}
+
+.mapping-table th,
+.mapping-table td {
+  padding: 14px 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.mapping-table th {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-dim);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.mapping-table tr:hover td {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.form-grid-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+}
+
+/* Filter tab button styling */
+.inbox-filter-btn {
+  transition: all 0.2s ease !important;
+  font-weight: 500 !important;
+  border-radius: 20px !important;
+  padding: 6px 16px !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-muted) !important;
+}
+
+.inbox-filter-btn:hover {
+  background: rgba(59, 130, 246, 0.15) !important;
+  border-color: rgba(59, 130, 246, 0.5) !important;
+  color: #ffffff !important;
+}
+
+.inbox-filter-btn.active {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8) !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  border: 1px solid #60a5fa !important;
+  box-shadow: 0 0 16px rgba(59, 130, 246, 0.5), 0 2px 8px rgba(0, 0, 0, 0.4) !important;
+  transform: translateY(-1px);
+}
+
+.tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--text-main);
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 12px;
+  padding: 1px 7px;
+  margin-left: 5px;
+  min-width: 18px;
+  transition: all 0.2s ease;
+}
+
+.inbox-filter-btn.active .tab-badge {
+  background: rgba(99, 102, 241, 0.3);
+  color: #a5b4fc;
+  border: 1px solid rgba(99, 102, 241, 0.5);
 }
 
 /* Toast container */
@@ -1009,6 +1101,10 @@ kbd {
 
   .review-form-pane {
     padding: 16px;
+  }
+
+  .form-grid-3 {
+    grid-template-columns: 1fr;
   }
 }
 

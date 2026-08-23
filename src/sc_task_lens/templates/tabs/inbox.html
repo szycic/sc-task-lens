@@ -5,8 +5,10 @@
   <div id="dropzone" class="upload-dropzone">
     <div class="dropzone-content">
       <span class="dropzone-icon">📤</span>
-      <h3>Drag & Drop Screenshot Here</h3>
-      <p>Or click to browse from files (.png, .jpg, .jpeg)</p>
+      <h3 class="desktop-only">Drag & Drop Screenshot Here</h3>
+      <p class="desktop-only">Or click to browse from files (.png, .jpg, .jpeg)</p>
+      <h3 class="mobile-only" style="display: none;">Tap to Upload Screenshots</h3>
+      <p class="mobile-only" style="display: none;">Select screenshots from your library</p>
       <input type="file" id="file-input" accept="image/*" style="display: none;" multiple>
     </div>
   </div>
@@ -73,13 +75,19 @@
     </div>
 
     <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-      <button class="btn btn-primary btn-sm" id="btn-bulk-process" onclick="bulkProcessCandidates()" disabled>
-        🤖 Bulk Extract Tasks
+      <button class="btn btn-primary btn-sm" id="btn-bulk-process" onclick="bulkProcessCandidates()" style="display: none;" disabled>
+        🤖 Bulk Process
       </button>
-      <button class="btn btn-outline btn-sm" id="btn-bulk-ignore" onclick="bulkIgnoreCandidates()" disabled>
+      <button class="btn btn-primary btn-sm" id="btn-bulk-reprocess" onclick="bulkReprocessCandidates()" style="display: none;" disabled>
+        🔄 Bulk Reprocess
+      </button>
+      <button class="btn btn-success btn-sm" id="btn-bulk-notion" onclick="bulkOpenNotionTasks()" style="display: none;" disabled>
+        🔗 Bulk Open in Notion
+      </button>
+      <button class="btn btn-outline btn-sm" id="btn-bulk-ignore" onclick="bulkIgnoreCandidates()" style="display: none;" disabled>
         🚫 Bulk Ignore
       </button>
-      <button class="btn btn-outline btn-sm" id="btn-bulk-unignore" onclick="bulkUnignoreCandidates()" disabled>
+      <button class="btn btn-outline btn-sm" id="btn-bulk-unignore" onclick="bulkUnignoreCandidates()" style="display: none;" disabled>
         🔄 Bulk Unignore
       </button>
     </div>

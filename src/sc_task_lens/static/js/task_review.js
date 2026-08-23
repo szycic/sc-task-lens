@@ -15,7 +15,6 @@ function openTaskReviewModal(candidateId) {
   document.getElementById("review-title").value = "Loading...";
   document.getElementById("review-summary").value = "";
   document.getElementById("review-priority").value = "MEDIUM";
-  document.getElementById("review-project").value = "";
   document.getElementById("review-start-date").value = "";
   document.getElementById("review-deadline").value = "";
   document.getElementById("review-source-url").value = "";
@@ -31,8 +30,7 @@ function openTaskReviewModal(candidateId) {
       document.getElementById("review-candidate-id").value = data.id;
       document.getElementById("review-title").value = data.title || "";
       document.getElementById("review-summary").value = data.summary || "";
-      document.getElementById("review-priority").value = data.priority || "MEDIUM";
-      document.getElementById("review-project").value = data.project || "";
+      updatePriorityDropdownInModal(data);
       
       // Format dates for picker (YYYY-MM-DD)
       document.getElementById("review-start-date").value = formatDateForPicker(data.start_date);
@@ -51,9 +49,9 @@ function openTaskReviewModal(candidateId) {
 
       if (btnSync) {
         if (data.status === "CREATED") {
-          btnSync.innerHTML = "✅ Synced to Notion";
-          btnSync.disabled = true;
-          btnSync.className = "btn btn-outline btn-sm";
+          btnSync.innerHTML = "🔄 Update in Notion";
+          btnSync.disabled = false;
+          btnSync.className = "btn btn-success btn-sm";
         } else {
           btnSync.innerHTML = "🚀 Push to Notion";
           btnSync.disabled = false;
@@ -62,12 +60,26 @@ function openTaskReviewModal(candidateId) {
       }
 
       if (btnIgnore) {
-        if (data.status === "IGNORED") {
-          btnIgnore.innerHTML = "🔄 Unignore";
-          btnIgnore.onclick = unignoreCandidateReview;
+        if (data.status === "CREATED") {
+          btnIgnore.style.display = "none";
         } else {
-          btnIgnore.innerHTML = "🚫 Ignore";
-          btnIgnore.onclick = ignoreCandidateReview;
+          btnIgnore.style.display = "";
+          if (data.status === "IGNORED") {
+            btnIgnore.innerHTML = "🔄 Unignore";
+            btnIgnore.onclick = unignoreCandidateReview;
+          } else {
+            btnIgnore.innerHTML = "🚫 Ignore";
+            btnIgnore.onclick = ignoreCandidateReview;
+          }
+        }
+      }
+
+      const btnReanalyze = document.getElementById("review-btn-reanalyze");
+      if (btnReanalyze) {
+        if (data.status === "PENDING") {
+          btnReanalyze.innerHTML = "🤖 Process";
+        } else {
+          btnReanalyze.innerHTML = "🤖 Reprocess";
         }
       }
 
@@ -92,19 +104,18 @@ function closeTaskReviewModal(event, force = false) {
 
 function saveTaskReviewForm(event) {
   if (event) event.preventDefault();
-  if (!activeReviewCandidateId) return;
+  if (!activeReviewCandidateId) return Promise.resolve();
 
   const payload = {
     title: document.getElementById("review-title").value.trim(),
     summary: document.getElementById("review-summary").value.trim(),
     priority: document.getElementById("review-priority").value,
-    project: document.getElementById("review-project").value.trim(),
     start_date: document.getElementById("review-start-date").value || null,
     deadline: document.getElementById("review-deadline").value || null,
     source_url: document.getElementById("review-source-url").value.trim() || null
   };
 
-  fetch(`/api/inbox/candidates/${activeReviewCandidateId}`, {
+  return fetch(`/api/inbox/candidates/${activeReviewCandidateId}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload)
@@ -116,10 +127,12 @@ function saveTaskReviewForm(event) {
     .then(data => {
       showToast("Changes saved successfully.", "success");
       loadCandidates();
+      return data;
     })
     .catch(err => {
       showToast("Failed to save changes.", "error");
       console.error(err);
+      throw err;
     });
 }
 
@@ -141,8 +154,7 @@ function reanalyzeCandidateReview() {
       // Update form fields
       document.getElementById("review-title").value = data.title || "";
       document.getElementById("review-summary").value = data.summary || "";
-      document.getElementById("review-priority").value = data.priority || "MEDIUM";
-      document.getElementById("review-project").value = data.project || "";
+      updatePriorityDropdownInModal(data);
       document.getElementById("review-start-date").value = formatDateForPicker(data.start_date);
       document.getElementById("review-deadline").value = formatDateForPicker(data.deadline);
       document.getElementById("review-source-url").value = data.source_url || "";
@@ -218,29 +230,98 @@ function syncCandidateReview() {
   if (!activeReviewCandidateId) return;
   
   // Save form edits first
-  saveTaskReviewForm();
+  saveTaskReviewForm()
+    .then(() => {
+      const toast = showToast("Uploading attachment & pushing task to Notion...", "loading", true);
 
-  const toast = showToast("Uploading attachment & pushing task to Notion...", "loading", true);
-
-  fetch(`/api/inbox/candidates/${activeReviewCandidateId}/create-task`, {
-    method: "POST"
-  })
-    .then(res => {
-      if (!res.ok) throw new Error("Sync failed");
-      return res.json();
-    })
-    .then(data => {
-      toast.update("Successfully created Notion task page!", "success");
-      setTimeout(() => toast.dismiss(), 2000);
-      
-      const modal = document.getElementById("task-review-modal");
-      if (modal) modal.classList.remove("active");
-      
-      loadCandidates();
+      fetch(`/api/inbox/candidates/${activeReviewCandidateId}/create-task`, {
+        method: "POST"
+      })
+        .then(async res => {
+          if (!res.ok) {
+            let errMsg = "Sync failed";
+            try {
+              const errData = await res.json();
+              if (errData && errData.detail) errMsg = errData.detail;
+            } catch(e) {}
+            throw new Error(errMsg);
+          }
+          return res.json();
+        })
+        .then(data => {
+          const msg = data.updated ? "Successfully updated Notion task page!" : "Successfully created Notion task page!";
+          toast.update(msg, "success");
+          setTimeout(() => toast.dismiss(), 2000);
+          
+          const modal = document.getElementById("task-review-modal");
+          if (modal) modal.classList.remove("active");
+          
+          loadCandidates();
+        })
+        .catch(err => {
+          toast.update(`Failed to sync to Notion: ${err.message}`, "error");
+          setTimeout(() => toast.dismiss(), 6000);
+          console.error(err);
+        });
     })
     .catch(err => {
-      toast.update("Failed to sync to Notion. Ensure your database mappings are correct.", "error");
-      setTimeout(() => toast.dismiss(), 4000);
-      console.error(err);
+      console.error("Sync aborted because save failed:", err);
     });
+}
+
+function updatePriorityDropdownInModal(candidate) {
+  const prioritySelect = document.getElementById("review-priority");
+  if (!prioritySelect) return;
+
+  const priorityMapping = currentFieldMappings.find(m => m.task_field === "priority");
+  let options = [];
+
+  if (priorityMapping && priorityMapping.notion_property_name) {
+    const matchedProp = fetchedNotionProperties.find(p => p.name === priorityMapping.notion_property_name);
+    if (matchedProp && matchedProp.options && matchedProp.options.length > 0) {
+      options = [...matchedProp.options];
+    }
+
+    if (priorityMapping.value_mappings_json) {
+      try {
+        const valMapObj = JSON.parse(priorityMapping.value_mappings_json);
+        if (typeof valMapObj === "object") {
+          Object.values(valMapObj).forEach(val => {
+            if (val && !options.includes(val)) {
+              options.push(val);
+            }
+          });
+        }
+      } catch (e) { }
+    }
+  }
+
+  if (options.length === 0) {
+    options = ["HIGH", "MEDIUM", "LOW"];
+  }
+
+  prioritySelect.innerHTML = options.map(opt => `<option value="${escapeHtml(opt)}">${escapeHtml(opt)}</option>`).join("");
+
+  let targetVal = candidate.priority || "MEDIUM";
+  if (priorityMapping && priorityMapping.value_mappings_json) {
+    try {
+      const valMapObj = JSON.parse(priorityMapping.value_mappings_json);
+      if (valMapObj[targetVal]) {
+        targetVal = valMapObj[targetVal];
+      }
+    } catch (e) { }
+  }
+
+  // Case-insensitive match against allowed Notion schema options
+  let matchedOption = options.find(opt => opt.toLowerCase() === targetVal.toLowerCase());
+
+  if (matchedOption) {
+    prioritySelect.value = matchedOption;
+  } else {
+    // Fallback to Medium or Normal before resorting to first option
+    let defaultMatch = options.find(opt => opt.toLowerCase() === "medium" || opt.toLowerCase() === "normal") || options[0];
+    if (defaultMatch) {
+      prioritySelect.value = defaultMatch;
+    }
+  }
 }

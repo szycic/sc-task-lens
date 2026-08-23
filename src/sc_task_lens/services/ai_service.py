@@ -16,7 +16,7 @@ from sc_task_lens.models import Screenshot, TaskCandidate, AISettings
 
 class AIService:
     @staticmethod
-    def ensure_candidate_from_screenshot(screenshot: Screenshot, db: Session) -> TaskCandidate:
+    def ensure_candidate_from_screenshot(screenshot: Screenshot, db: Session, title: Optional[str] = None) -> TaskCandidate:
         """Create or refresh a lightweight candidate without calling paid AI APIs."""
         existing_candidate = db.query(TaskCandidate).filter(TaskCandidate.screenshot_id == screenshot.id).first()
 
@@ -25,8 +25,8 @@ class AIService:
         else:
             candidate = TaskCandidate(
                 screenshot_id=screenshot.id,
-                title="Processing screenshot...",
-                summary="AI task extraction pending.",
+                title=title or screenshot.filename,
+                summary="",
                 is_task=True,
                 priority=None,
                 start_date=None,
@@ -49,8 +49,8 @@ class AIService:
         if not api_key:
             return {"success": False, "error": f"API key is required to test {provider.upper()} connection."}
 
-        # Use a dummy tiny image (1x1 transparent pixel base64) to test vision capabilities
-        dummy_base64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
+        # Use a dummy tiny image (2x2 pixel base64) to test vision capabilities
+        dummy_base64 = "iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAFklEQVR4nGP8//8/AwMDEwMDAwMDAwAkBgMB/DXemwAAAABJRU5ErkJggg=="
 
         if provider == "openai":
             model = model_name or "gpt-4o-mini"
@@ -111,7 +111,7 @@ class AIService:
                 return {"success": False, "error": f"Gemini Connection Failed: {str(e)}"}
 
         elif provider == "groq":
-            model = model_name or "llama-3.2-11b-vision-preview"
+            model = model_name or "qwen/qwen3.6-27b"
             try:
                 headers = {
                     "Authorization": f"Bearer {api_key}",
@@ -282,7 +282,6 @@ Output must be a JSON object matching this schema:
   "priority": MUST be one of [{options_str}],
   "title": "A short, descriptive, actionable task title (maximum 80 characters)",
   "summary": "A concise 2-3 sentence description of the task requirements extracted from the image",
-  "project": "A single word or category name if apparent (e.g. Work, Personal, Bug, Todo), or null",
   "start_date": "Extracted start date in ISO YYYY-MM-DD format (e.g. 2026-08-04) or null",
   "deadline": "Extracted due date / deadline in ISO YYYY-MM-DD format (e.g. 2026-08-04) or null"
 }}
@@ -379,7 +378,7 @@ Return ONLY valid JSON. Keep response clean without markdown formatting tags.
 
     @staticmethod
     def _analyze_groq(image_path: str, api_key: str, model_name: str = None, priority_options: list[str] = None) -> Optional[Dict[str, Any]]:
-        model = model_name or "llama-3.2-11b-vision-preview"
+        model = model_name or "qwen/qwen3.6-27b"
         prompt = AIService._build_analysis_prompt(priority_options)
         
         with open(image_path, "rb") as f:

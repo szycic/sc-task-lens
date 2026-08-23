@@ -104,6 +104,8 @@ function updateBulkActionUI() {
   if (countEl) countEl.textContent = `(${count} selected)`;
 
   const btnProcess = document.getElementById("btn-bulk-process");
+  const btnReprocess = document.getElementById("btn-bulk-reprocess");
+  const btnNotion = document.getElementById("btn-bulk-notion");
   const btnIgnore = document.getElementById("btn-bulk-ignore");
   const btnUnignore = document.getElementById("btn-bulk-unignore");
 
@@ -112,8 +114,19 @@ function updateBulkActionUI() {
     btnProcess.disabled = count === 0;
   }
 
+  if (btnReprocess) {
+    btnReprocess.style.display = currentStatusFilter === "AI_PROCESSED" ? "inline-flex" : "none";
+    btnReprocess.disabled = count === 0;
+  }
+
+  if (btnNotion) {
+    btnNotion.style.display = currentStatusFilter === "CREATED" ? "inline-flex" : "none";
+    btnNotion.disabled = count === 0;
+  }
+
   if (btnIgnore) {
-    btnIgnore.style.display = currentStatusFilter !== "IGNORED" ? "inline-flex" : "none";
+    const showIgnore = currentStatusFilter !== "IGNORED" && currentStatusFilter !== "CREATED";
+    btnIgnore.style.display = showIgnore ? "inline-flex" : "none";
     btnIgnore.disabled = count === 0;
   }
 
@@ -170,6 +183,7 @@ function loadCandidates() {
       renderCandidates();
       renderPagination();
       updateFilterBadges();
+      updateBulkActionUI();
     })
     .catch(err => {
       showToast("Failed to load task candidates.", "error");
@@ -247,9 +261,24 @@ function renderCandidates() {
           <h3 class="candidate-card-title">${escapeHtml(c.title)}</h3>
           <p class="candidate-card-desc">${escapeHtml(c.summary || "No description generated.")}</p>
           
-          <div class="candidate-card-meta">
-            <span>📅 ${timeAgoStr}</span>
-            ${c.project ? `<span class="meta-item">📁 ${escapeHtml(c.project)}</span>` : ''}
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+            <div class="candidate-card-meta" style="margin-top:0; padding-top:0;">
+              <span>📅 ${timeAgoStr}</span>
+            </div>
+            ${c.status === "PENDING" ? `
+              <button class="btn btn-primary btn-xs card-process-btn" 
+                      onclick="processSingleCandidate(event, ${c.id})"
+                      style="font-size:11px; padding:2px 8px; border-radius:4px; margin-left:8px; line-height:1.2;">
+                🤖 Process
+              </button>
+            ` : ''}
+            ${c.notion_url ? `
+              <a href="${c.notion_url}" target="_blank" class="btn btn-success btn-xs"
+                 onclick="event.stopPropagation();"
+                 style="font-size:11px; padding:2px 8px; border-radius:4px; margin-left:8px; line-height:1.2; text-decoration:none; display:inline-flex; align-items:center;">
+                🔗 Open in Notion
+              </a>
+            ` : ''}
           </div>
         </div>
       </div>
@@ -344,6 +373,30 @@ function initUploadDropzone() {
       uploadFiles(e.dataTransfer.files);
     }
   });
+
+  // Handle global paste event for screenshots in clipboard
+  document.addEventListener("paste", (e) => {
+    // Ignore paste if target is an input/textarea/editable
+    const tag = e.target.tagName.toLowerCase();
+    if (tag === "input" || tag === "select" || tag === "textarea" || e.target.isContentEditable) {
+      return;
+    }
+
+    const items = (e.clipboardData || window.clipboardData).items;
+    const filesToUpload = [];
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.indexOf("image") !== -1) {
+        const file = items[i].getAsFile();
+        if (file) {
+          const renamedFile = new File([file], `clipboard_${Date.now()}.png`, { type: file.type });
+          filesToUpload.push(renamedFile);
+        }
+      }
+    }
+    if (filesToUpload.length > 0) {
+      uploadFiles(filesToUpload);
+    }
+  });
 }
 
 function uploadFiles(files) {
@@ -383,7 +436,7 @@ function uploadFiles(files) {
 function bulkProcessCandidates() {
   if (selectedCandidateIds.size === 0) return;
   const ids = Array.from(selectedCandidateIds);
-  const toast = showToast(`Triggering AI extraction on ${ids.length} candidates...`, "loading", true);
+  const toast = showToast(`Processing ${ids.length} candidates in background...`, "loading", true);
 
   fetch("/api/inbox/candidates/batch-process", {
     method: "POST",
@@ -392,7 +445,7 @@ function bulkProcessCandidates() {
   })
     .then(res => res.json())
     .then(data => {
-      toast.update(`Extraction jobs started in background!`, "success");
+      toast.update(`Processing started in background!`, "success");
       setTimeout(() => toast.dismiss(), 3000);
       selectedCandidateIds.clear();
       const selectAllCb = document.getElementById("select-all-cb");
@@ -400,7 +453,32 @@ function bulkProcessCandidates() {
       loadCandidates();
     })
     .catch(err => {
-      toast.update("Batch extraction failed.", "error");
+      toast.update("Batch processing failed.", "error");
+      setTimeout(() => toast.dismiss(), 3000);
+    });
+}
+
+function bulkReprocessCandidates() {
+  if (selectedCandidateIds.size === 0) return;
+  const ids = Array.from(selectedCandidateIds);
+  const toast = showToast(`Reprocessing ${ids.length} candidates in background...`, "loading", true);
+
+  fetch("/api/inbox/candidates/batch-process", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ candidate_ids: ids })
+  })
+    .then(res => res.json())
+    .then(data => {
+      toast.update(`Reprocessing started in background!`, "success");
+      setTimeout(() => toast.dismiss(), 3000);
+      selectedCandidateIds.clear();
+      const selectAllCb = document.getElementById("select-all-cb");
+      if (selectAllCb) selectAllCb.checked = false;
+      loadCandidates();
+    })
+    .catch(err => {
+      toast.update("Batch reprocessing failed.", "error");
       setTimeout(() => toast.dismiss(), 3000);
     });
 }
@@ -491,3 +569,43 @@ style.innerHTML = `
   }
 `;
 document.head.appendChild(style);
+
+function processSingleCandidate(event, candidateId) {
+  event.stopPropagation();
+  const toast = showToast("Running AI Vision extraction...", "loading", true);
+  fetch(`/api/inbox/candidates/${candidateId}/prepare-task?force=true`, {
+    method: "POST"
+  })
+    .then(res => {
+      if (!res.ok) throw new Error("Analysis failed");
+      return res.json();
+    })
+    .then(data => {
+      toast.update("Analysis completed successfully!", "success");
+      setTimeout(() => toast.dismiss(), 2000);
+      loadCandidates();
+    })
+    .catch(err => {
+      toast.update("AI Vision analysis failed.", "error");
+      setTimeout(() => toast.dismiss(), 3000);
+      console.error(err);
+    });
+}
+
+function bulkOpenNotionTasks() {
+  if (selectedCandidateIds.size === 0) return;
+  let openedCount = 0;
+
+  currentCandidates.forEach(c => {
+    if (selectedCandidateIds.has(c.id) && c.notion_url) {
+      window.open(c.notion_url, "_blank");
+      openedCount++;
+    }
+  });
+
+  if (openedCount > 0) {
+    showToast(`Opened ${openedCount} Notion task(s)`, "info");
+  } else {
+    showToast("No Notion links available for selected candidates", "warning");
+  }
+}

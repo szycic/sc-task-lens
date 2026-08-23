@@ -47,9 +47,31 @@ function closeShortcutsHelpModal(event, force = false) {
 }
 
 function handleGlobalKeydown(e) {
-  // Ignore shortcuts if the user is typing in a form input, select, or textarea
+  // Power-user modal shortcuts (run even if user is typing in form fields)
+  const modalActive = document.getElementById("task-review-modal")?.classList.contains("active");
+  if (modalActive) {
+    // Ctrl + S or Cmd + S -> Save
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
+      e.preventDefault();
+      saveTaskReviewForm();
+      return;
+    }
+    // Ctrl + Enter or Cmd + Enter -> Push/Update to Notion
+    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+      e.preventDefault();
+      syncCandidateReview();
+      return;
+    }
+  }
+
+  // Ignore navigation shortcuts if the user is typing in a form input, select, or textarea
   const tag = e.target.tagName.toLowerCase();
   if (tag === "input" || tag === "select" || tag === "textarea" || e.target.isContentEditable) {
+    if (e.key === "Escape") {
+      closeTaskReviewModal(null, true);
+      closeShortcutsHelpModal(null, true);
+      closeConfigImportModal(null, true);
+    }
     return;
   }
 

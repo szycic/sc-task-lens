@@ -22,7 +22,6 @@ AVAILABLE_TASK_FIELDS = [
     {"field": "start_date", "label": "Start Date", "description": "Date when work on task should start"},
     {"field": "deadline", "label": "Due Date", "description": "Extracted due date"},
     {"field": "source_url", "label": "Reference URL", "description": "Actual HTTP/HTTPS URL extracted from screenshot or manual ref"},
-    {"field": "project", "label": "Project/Category", "description": "Mapped project, team, or label context"},
     {"field": "attachment", "label": "Screenshot Image", "description": "Uploaded screenshot file attached directly"}
 ]
 

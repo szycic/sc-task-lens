@@ -43,7 +43,7 @@ def test_upload_and_operations():
     cand_res = client.get(f"/api/inbox/candidates/{candidate_id}")
     assert cand_res.status_code == 200
     cand_data = cand_res.json()
-    assert cand_data["title"] == "Processing screenshot..."
+    assert cand_data["title"] == "test_screenshot.png"
     assert cand_data["status"] == "PENDING"
 
     # 4. Update candidate

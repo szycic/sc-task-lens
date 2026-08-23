@@ -5,7 +5,7 @@
       <h3 class="modal-title">Review Task Candidate</h3>
       <button class="modal-close-btn" onclick="closeTaskReviewModal(event, true)">&times;</button>
     </div>
-    
+
     <div class="modal-body review-split-layout">
       <!-- Left side: Screenshot Image Preview -->
       <div class="review-image-pane">
@@ -13,7 +13,8 @@
           <img id="review-screenshot-img" src="" alt="Source Screenshot">
         </div>
         <div class="image-actions">
-          <a id="review-screenshot-link" href="" target="_blank" class="btn btn-outline btn-sm">🔍 Open Original Image</a>
+          <a id="review-screenshot-link" href="" target="_blank" class="btn btn-outline btn-sm">🔍 Open Original
+            Image</a>
         </div>
       </div>
 
@@ -21,19 +22,15 @@
       <div class="review-form-pane">
         <form id="task-review-form" onsubmit="saveTaskReviewForm(event)">
           <input type="hidden" id="review-candidate-id">
-          
+
           <div class="form-group">
             <label for="review-title">Task Title</label>
-            <input type="text" id="review-title" class="text-input font-semibold" placeholder="Task summary name" required>
+            <input type="text" id="review-title" class="text-input font-semibold" placeholder="Task summary name"
+              required>
           </div>
 
-          <div class="form-group">
-            <label for="review-summary">Description / Notes</label>
-            <textarea id="review-summary" class="textarea-input" placeholder="Task requirements summary detail..." rows="4"></textarea>
-          </div>
-
-          <div class="form-row" style="display:flex; gap:12px; flex-wrap:wrap;">
-            <div class="form-group" style="flex:1; min-width:140px;">
+          <div class="form-grid-3" style="margin-bottom:16px;">
+            <div class="form-group">
               <label for="review-priority">Priority</label>
               <select id="review-priority" class="select-input">
                 <option value="LOW">LOW</option>
@@ -41,39 +38,43 @@
                 <option value="HIGH">HIGH</option>
               </select>
             </div>
-            <div class="form-group" style="flex:1; min-width:140px;">
-              <label for="review-project">Project / Tag</label>
-              <input type="text" id="review-project" class="text-input" placeholder="e.g. Work, Bug">
-            </div>
-          </div>
-
-          <div class="form-row" style="display:flex; gap:12px; flex-wrap:wrap;">
-            <div class="form-group" style="flex:1; min-width:140px;">
+            <div class="form-group">
               <label for="review-start-date">Start Date</label>
               <input type="date" id="review-start-date" class="text-input">
             </div>
-            <div class="form-group" style="flex:1; min-width:140px;">
+            <div class="form-group">
               <label for="review-deadline">Due Date</label>
               <input type="date" id="review-deadline" class="text-input">
             </div>
           </div>
 
           <div class="form-group">
-            <label for="review-source-url">Reference URL</label>
+            <label for="review-summary">Description</label>
+            <textarea id="review-summary" class="textarea-input" placeholder="Task requirements summary detail..."
+              rows="4"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="review-source-url">Link</label>
             <input type="text" id="review-source-url" class="text-input" placeholder="https://example.com/source">
           </div>
 
           <div class="divider" style="margin:20px 0; border-top:1px solid rgba(255,255,255,0.06);"></div>
 
-          <div class="form-actions" style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+          <div class="form-actions"
+            style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
             <div style="display:flex; gap:8px;">
-              <button type="button" class="btn btn-outline btn-sm btn-danger" onclick="deleteCandidateReview()">🗑️ Delete</button>
-              <button type="button" id="review-btn-ignore" class="btn btn-outline btn-sm" onclick="ignoreCandidateReview()">🚫 Ignore</button>
-              <button type="button" id="review-btn-reanalyze" class="btn btn-outline btn-sm" onclick="reanalyzeCandidateReview()">🤖 Re-run AI</button>
+              <button type="button" class="btn btn-outline btn-danger btn-sm" onclick="deleteCandidateReview()">🗑️
+                Delete</button>
+              <button type="button" id="review-btn-ignore" class="btn btn-outline btn-sm"
+                onclick="ignoreCandidateReview()">🚫 Ignore</button>
+              <button type="button" id="review-btn-reanalyze" class="btn btn-outline btn-sm"
+                onclick="reanalyzeCandidateReview()">🤖 Reprocess</button>
             </div>
-            <div style="display:flex; gap:8px;">
-              <button type="submit" class="btn btn-outline btn-sm">💾 Save</button>
-              <button type="button" id="review-btn-sync" class="btn btn-success btn-sm" onclick="syncCandidateReview()">🚀 Push to Notion</button>
+            <div style="display:flex; gap:8px; align-items:center;">
+              <button type="submit" class="btn btn-primary btn-sm">💾 Save</button>
+              <button type="button" id="review-btn-sync" class="btn btn-success btn-sm"
+                onclick="syncCandidateReview()">🚀 Push to Notion</button>
             </div>
           </div>
         </form>

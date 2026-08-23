@@ -277,15 +277,21 @@ class NotionService:
                             "checkbox": bool(raw_val)
                         }
 
-                # Construct creation payload
-                payload = {
-                    "parent": {"database_id": extract_notion_id(config.database_id)},
-                    "properties": notion_properties
-                }
-
-                # Create the task page in Notion
-                url = "https://api.notion.com/v1/pages"
-                res = client.post(url, headers=NotionService.get_headers(config.api_token), json=payload)
+                # Create or update the task page in Notion
+                is_update = bool(candidate.notion_page_id)
+                if is_update:
+                    url = f"https://api.notion.com/v1/pages/{candidate.notion_page_id}"
+                    payload = {
+                        "properties": notion_properties
+                    }
+                    res = client.patch(url, headers=NotionService.get_headers(config.api_token), json=payload)
+                else:
+                    url = "https://api.notion.com/v1/pages"
+                    payload = {
+                        "parent": {"database_id": extract_notion_id(config.database_id)},
+                        "properties": notion_properties
+                    }
+                    res = client.post(url, headers=NotionService.get_headers(config.api_token), json=payload)
                 
                 if res.status_code == 200:
                     data = res.json()
@@ -300,11 +306,13 @@ class NotionService:
                     return {
                         "success": True,
                         "page_id": page_id,
-                        "notion_url": notion_url
+                        "notion_url": notion_url,
+                        "updated": is_update
                     }
                 else:
                     err_msg = res.json().get("message", res.text)
-                    return {"success": False, "error": f"Notion API error ({res.status_code}): {err_msg}"}
+                    action = "update" if is_update else "creation"
+                    return {"success": False, "error": f"Notion API error during {action} ({res.status_code}): {err_msg}"}
 
         except Exception as e:
             return {"success": False, "error": f"Notion page creation failed: {str(e)}"}

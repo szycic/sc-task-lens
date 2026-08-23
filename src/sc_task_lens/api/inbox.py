@@ -161,7 +161,7 @@ async def upload_screenshot(
     db.refresh(screenshot)
 
     # Initialize candidate in PENDING state
-    candidate = AIService.ensure_candidate_from_screenshot(screenshot, db)
+    candidate = AIService.ensure_candidate_from_screenshot(screenshot, db, title=file.filename)
     
     notify_inbox_updated()
 

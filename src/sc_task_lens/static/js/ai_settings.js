@@ -7,8 +7,7 @@ const PROVIDER_MODELS = {
     { value: "", label: "Offline Mock (No Model Required)" }
   ],
   groq: [
-    { value: "llama-3.2-11b-vision-preview", label: "Llama 3.2 11B Vision (Recommended - Fast & Free/Cheap)" },
-    { value: "llama-3.2-90b-vision-preview", label: "Llama 3.2 90B Vision (Highly Accurate)" }
+    { value: "qwen/qwen3.6-27b", label: "Qwen 3.6 27B Vision (Recommended - Active)" }
   ],
   openai: [
     { value: "gpt-4o-mini", label: "GPT-4o mini (Recommended - Balanced)" },
