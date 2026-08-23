@@ -166,7 +166,7 @@ function handleSearchInput() {
 function loadCandidates() {
   const searchVal = document.getElementById("filter-search")?.value?.trim() || "";
   const sortVal = document.getElementById("sort-candidates")?.value || "NEWEST";
-  
+
   let url = `/api/inbox/candidates?status=${currentStatusFilter}&page=${currentPage}&page_size=${pageSize}&sort_by=${sortVal}`;
   if (searchVal) {
     url += `&search=${encodeURIComponent(searchVal)}`;
@@ -200,7 +200,7 @@ function updateFilterBadges() {
         const badge = document.getElementById(`badge-${status}`);
         if (badge) badge.textContent = count;
       }
-      
+
       const lastSyncedIndicator = document.getElementById("last-synced-indicator");
       if (lastSyncedIndicator && data.last_synced_at) {
         lastSyncedIso = data.last_synced_at;
@@ -219,7 +219,7 @@ function renderCandidates() {
     container.innerHTML = `
       <div class="empty-state" style="padding: 60px 20px; text-align: center; color: var(--text-muted);">
         <div class="empty-icon" style="font-size: 48px; margin-bottom: 12px; opacity: 0.35;">📷</div>
-        <h3>No candidates found</h3>
+        <h3>No task candidates found</h3>
         <p style="font-size: 13px;">Upload screenshots to extract tasks and sync them to Notion.</p>
       </div>
     `;
@@ -231,7 +231,7 @@ function renderCandidates() {
     const isSelected = selectedCandidateIds.has(c.id);
     const timeAgoStr = formatTimeAgo(c.created_at);
     const borderClass = c.priority ? `${c.priority.toLowerCase()}-importance` : '';
-    
+
     let thumbnailHtml = `<div class="candidate-thumbnail-placeholder">📄</div>`;
     if (c.screenshot_url) {
       thumbnailHtml = `<img src="${c.screenshot_url}" class="candidate-thumbnail-img" loading="lazy">`;
@@ -526,7 +526,7 @@ function connectWebSocket() {
   const wsUrl = `${protocol}//${window.location.host}/api/inbox/ws/sync-updates`;
 
   if (wsConn) {
-    try { wsConn.close(); } catch(e) {}
+    try { wsConn.close(); } catch (e) { }
   }
 
   wsConn = new WebSocket(wsUrl);
@@ -541,7 +541,7 @@ function connectWebSocket() {
           loadCandidates();
         }
       }
-    } catch(e) {
+    } catch (e) {
       console.error("WebSocket message parsing error:", e);
     }
   };
