@@ -122,13 +122,18 @@ function handleGlobalKeydown(e) {
     }
   } 
   else if (e.key === "Enter" || e.key === "o") {
-    // Enter or 'o': Open review modal on focused card
+    // Enter or 'o': Process & Review focused card if pending, or open review modal
     if (focusedCard) {
       e.preventDefault();
       const cb = focusedCard.querySelector(".candidate-select-cb");
       if (cb) {
         const cid = parseInt(cb.getAttribute("data-id"), 10);
-        openTaskReviewModal(cid);
+        const cand = (typeof currentCandidates !== "undefined" && currentCandidates) ? currentCandidates.find(c => c.id === cid) : null;
+        if (cand && cand.status === "PENDING" && typeof processAndReviewCandidate === "function") {
+          processAndReviewCandidate(null, cid);
+        } else if (typeof openTaskReviewModal === "function") {
+          openTaskReviewModal(cid);
+        }
       }
     }
   }

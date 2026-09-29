@@ -44,8 +44,10 @@ def setup_defaults(db: Session):
         db.add(AISettings(
             provider="mock",
             api_key=settings.OPENAI_API_KEY or settings.GEMINI_API_KEY or settings.GROQ_API_KEY or "",
-            model_name="qwen/qwen3.6-27b"
+            model_name="qwen/qwen3.8-27b"
         ))
+    elif ai_set.model_name == "qwen/qwen3.6-27b":
+        ai_set.model_name = "qwen/qwen3.8-27b"
         
     sys_set = db.query(SystemSettings).first()
     if not sys_set:

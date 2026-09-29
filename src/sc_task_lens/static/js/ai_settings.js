@@ -7,7 +7,7 @@ const PROVIDER_MODELS = {
     { value: "", label: "Offline Mock (No Model Required)" }
   ],
   groq: [
-    { value: "qwen/qwen3.6-27b", label: "Qwen 3.6 27B Vision (Recommended - Active)" }
+    { value: "qwen/qwen3.8-27b", label: "Qwen 3.8 27B Vision (Recommended - Active)" }
   ],
   openai: [
     { value: "gpt-4o-mini", label: "GPT-4o mini (Recommended - Balanced)" },

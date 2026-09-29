@@ -83,6 +83,7 @@ function openTaskReviewModal(candidateId) {
         }
       }
 
+      switchReviewTab("form");
       modal.classList.add("active");
     })
     .catch(err => {
@@ -90,6 +91,29 @@ function openTaskReviewModal(candidateId) {
       console.error(err);
     });
 }
+
+function switchReviewTab(tabName) {
+  const layout = document.getElementById("review-split-layout");
+  const btnForm = document.getElementById("review-tab-btn-form");
+  const btnImage = document.getElementById("review-tab-btn-image");
+
+  if (layout) {
+    layout.setAttribute("data-active-tab", tabName);
+  }
+
+  if (tabName === "image") {
+    btnForm?.classList.remove("active");
+    btnForm?.setAttribute("aria-selected", "false");
+    btnImage?.classList.add("active");
+    btnImage?.setAttribute("aria-selected", "true");
+  } else {
+    btnImage?.classList.remove("active");
+    btnImage?.setAttribute("aria-selected", "false");
+    btnForm?.classList.add("active");
+    btnForm?.setAttribute("aria-selected", "true");
+  }
+}
+window.switchReviewTab = switchReviewTab;
 
 function closeTaskReviewModal(event, force = false) {
   const modal = document.getElementById("task-review-modal");

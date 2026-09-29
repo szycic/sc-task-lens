@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sc-task-lens"
-version = "1.0.0"
+version = "1.0.4"
 description = "FastAPI app for screenshot task extraction & dynamic Notion sync"
 readme = "README.md"
 requires-python = ">=3.10"

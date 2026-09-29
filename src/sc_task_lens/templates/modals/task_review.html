@@ -6,20 +6,31 @@
       <button class="modal-close-btn" onclick="closeTaskReviewModal(event, true)">&times;</button>
     </div>
 
-    <div class="modal-body review-split-layout">
+    <!-- Mobile Tab Switcher: Separate tab for image preview vs task details -->
+    <div class="review-modal-tabs" id="review-modal-tabs" role="tablist" aria-label="Candidate review navigation">
+      <button type="button" class="review-tab-btn active" id="review-tab-btn-form" role="tab" aria-selected="true" onclick="switchReviewTab('form')">
+        <span class="review-tab-icon">📝</span>
+        <span class="review-tab-title">Task Details</span>
+      </button>
+      <button type="button" class="review-tab-btn" id="review-tab-btn-image" role="tab" aria-selected="false" onclick="switchReviewTab('image')">
+        <span class="review-tab-icon">🖼️</span>
+        <span class="review-tab-title">Image Preview</span>
+      </button>
+    </div>
+
+    <div class="modal-body review-split-layout" id="review-split-layout" data-active-tab="form">
       <!-- Left side: Screenshot Image Preview -->
-      <div class="review-image-pane">
+      <div class="review-image-pane" id="review-image-pane">
         <div class="image-zoom-container">
           <img id="review-screenshot-img" src="" alt="Source Screenshot">
         </div>
         <div class="image-actions">
-          <a id="review-screenshot-link" href="" target="_blank" class="btn btn-outline btn-sm">🔍 Open Original
-            Image</a>
+          <a id="review-screenshot-link" href="" target="_blank" class="btn btn-outline btn-sm">🔍 Open Original Image</a>
         </div>
       </div>
 
       <!-- Right side: Edit fields -->
-      <div class="review-form-pane">
+      <div class="review-form-pane" id="review-form-pane">
         <form id="task-review-form" onsubmit="saveTaskReviewForm(event)">
           <input type="hidden" id="review-candidate-id">
 
@@ -61,9 +72,8 @@
 
           <div class="divider" style="margin:20px 0; border-top:1px solid rgba(255,255,255,0.06);"></div>
 
-          <div class="form-actions"
-            style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
-            <div style="display:flex; gap:8px;">
+          <div class="form-actions review-form-actions">
+            <div class="review-actions-group-left">
               <button type="button" class="btn btn-outline btn-danger btn-sm" onclick="deleteCandidateReview()">🗑️
                 Delete</button>
               <button type="button" id="review-btn-ignore" class="btn btn-outline btn-sm"
@@ -71,7 +81,7 @@
               <button type="button" id="review-btn-reanalyze" class="btn btn-outline btn-sm"
                 onclick="reanalyzeCandidateReview()">🤖 Reprocess</button>
             </div>
-            <div style="display:flex; gap:8px; align-items:center;">
+            <div class="review-actions-group-right">
               <button type="submit" class="btn btn-primary btn-sm">💾 Save</button>
               <button type="button" id="review-btn-sync" class="btn btn-success btn-sm"
                 onclick="syncCandidateReview()">🚀 Push to Notion</button>

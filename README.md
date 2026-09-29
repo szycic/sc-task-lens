@@ -9,13 +9,13 @@ Designed for lightning-fast visual task capture, SC Task Lens provides a complet
 ## Key Features
 
 - **Drag-and-Drop & Clipboard Paste Ingestion**: Paste screenshots directly from the clipboard (`Ctrl+V` / `Cmd+V`) anywhere on the page, or drag files into the responsive touch-optimized dropzone.
-- **Vision-Based AI Extraction**: Process visual text, code, mockups, or reminders using state-of-the-art vision models (e.g. Groq `qwen/qwen3.6-27b`, OpenAI `gpt-4o-mini`, or Google Gemini Flash).
+- **Vision-Based AI Extraction**: Process visual text, code, mockups, or reminders using state-of-the-art vision models (e.g. Groq `qwen/qwen3.8-27b`, OpenAI `gpt-4o-mini`, or Google Gemini Flash).
 - **Notion Database Integration & Dynamic Syncing**: Map screenshot metadata and AI-extracted fields (Title, Description, Priority, Start Date, Due Date, Source URL, and Image Attachment) to custom Notion database properties. Sync new tasks or update existing Notion pages directly using the integrated `Update in Notion` PATCH sync mechanism.
 - **Progressive Web App (PWA)**: Installable directly to your Desktop or mobile home screen via custom Service Worker (`sw.js`) and web manifest configurations.
 - **Power-User Keyboard Shortcuts**: Manage your inbox at the speed of thought with global hotkeys:
   - `j`/`k` for scrolling cards.
   - `Space` to check/select cards.
-  - `o`/`Enter` to open split review modal.
+  - `o`/`Enter` to Process & Review focused task candidate (or open review).
   - `i` to ignore, `r` to analyze, and `p` to push directly to Notion.
   - `Ctrl + S` to save progress and `Ctrl + Enter` to sync/update tasks to Notion (inside the modal).
 - **Real-Time WebSocket Updates**: Live WebSocket updates sync state (upload success, extraction completions) instantly across all open browser tabs.

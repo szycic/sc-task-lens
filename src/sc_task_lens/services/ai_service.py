@@ -49,8 +49,8 @@ class AIService:
         if not api_key:
             return {"success": False, "error": f"API key is required to test {provider.upper()} connection."}
 
-        # Use a dummy tiny image (2x2 pixel base64) to test vision capabilities
-        dummy_base64 = "iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAFklEQVR4nGP8//8/AwMDEwMDAwMDAwAkBgMB/DXemwAAAABJRU5ErkJggg=="
+        # Use a dummy 32x32 pixel image (Groq requires min 32x32 pixels) to test vision capabilities
+        dummy_base64 = "iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAAKUlEQVR4nO3NMQEAAAjDMMC/52ECvlRA00nqs3m9AwAAAAAAAAAAgMMWx/EDPS4YA2MAAAAASUVORK5CYII="
 
         if provider == "openai":
             model = model_name or "gpt-4o-mini"
@@ -111,7 +111,7 @@ class AIService:
                 return {"success": False, "error": f"Gemini Connection Failed: {str(e)}"}
 
         elif provider == "groq":
-            model = model_name or "qwen/qwen3.6-27b"
+            model = model_name or "qwen/qwen3.8-27b"
             try:
                 headers = {
                     "Authorization": f"Bearer {api_key}",
@@ -378,7 +378,7 @@ Return ONLY valid JSON. Keep response clean without markdown formatting tags.
 
     @staticmethod
     def _analyze_groq(image_path: str, api_key: str, model_name: str = None, priority_options: list[str] = None) -> Optional[Dict[str, Any]]:
-        model = model_name or "qwen/qwen3.6-27b"
+        model = model_name or "qwen/qwen3.8-27b"
         prompt = AIService._build_analysis_prompt(priority_options)
         
         with open(image_path, "rb") as f:

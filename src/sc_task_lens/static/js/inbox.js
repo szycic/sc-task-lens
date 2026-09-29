@@ -261,24 +261,41 @@ function renderCandidates() {
           <h3 class="candidate-card-title">${escapeHtml(c.title)}</h3>
           <p class="candidate-card-desc">${escapeHtml(c.summary || "No description generated.")}</p>
           
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; flex-wrap:wrap; gap:6px;">
             <div class="candidate-card-meta" style="margin-top:0; padding-top:0;">
               <span>📅 ${timeAgoStr}</span>
             </div>
-            ${c.status === "PENDING" ? `
-              <button class="btn btn-primary btn-xs card-process-btn" 
-                      onclick="processSingleCandidate(event, ${c.id})"
-                      style="font-size:11px; padding:2px 8px; border-radius:4px; margin-left:8px; line-height:1.2;">
-                🤖 Process
-              </button>
-            ` : ''}
-            ${c.notion_url ? `
-              <a href="${c.notion_url}" target="_blank" class="btn btn-success btn-xs"
-                 onclick="event.stopPropagation();"
-                 style="font-size:11px; padding:2px 8px; border-radius:4px; margin-left:8px; line-height:1.2; text-decoration:none; display:inline-flex; align-items:center;">
-                🔗 Open in Notion
-              </a>
-            ` : ''}
+            <div class="candidate-card-actions" style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+              ${c.status === "PENDING" ? `
+                <button class="btn btn-primary btn-xs card-process-btn" 
+                        onclick="processSingleCandidate(event, ${c.id})"
+                        title="Run AI extraction in background"
+                        style="font-size:11px; padding:3px 8px; border-radius:4px; line-height:1.2;">
+                  🤖 Process
+                </button>
+                <button class="btn btn-outline btn-xs card-process-review-btn" 
+                        onclick="processAndReviewCandidate(event, ${c.id})"
+                        title="Run AI extraction and open review modal immediately"
+                        style="font-size:11px; padding:3px 8px; border-radius:4px; line-height:1.2;">
+                  ✨ Process & Review
+                </button>
+              ` : ''}
+              ${c.status === "AI_PROCESSED" ? `
+                <button class="btn btn-primary btn-xs" 
+                        onclick="event.stopPropagation(); openTaskReviewModal(${c.id})"
+                        style="font-size:11px; padding:3px 8px; border-radius:4px; line-height:1.2;"
+                        title="Review and edit task candidate">
+                  ✏️ Review
+                </button>
+              ` : ''}
+              ${c.notion_url ? `
+                <a href="${c.notion_url}" target="_blank" class="btn btn-success btn-xs"
+                   onclick="event.stopPropagation();"
+                   style="font-size:11px; padding:3px 8px; border-radius:4px; line-height:1.2; text-decoration:none; display:inline-flex; align-items:center;">
+                  🔗 Open in Notion
+                </a>
+              ` : ''}
+            </div>
           </div>
         </div>
       </div>
@@ -287,8 +304,8 @@ function renderCandidates() {
 }
 
 function handleCardClick(event, candidateId) {
-  // Prevent opening modal if checkbox was clicked
-  if (event.target.classList.contains("candidate-select-cb")) {
+  // Prevent opening modal if checkbox, button, or link was clicked
+  if (event.target.classList.contains("candidate-select-cb") || event.target.closest("button") || event.target.closest("a")) {
     return;
   }
   openTaskReviewModal(candidateId);
@@ -571,7 +588,7 @@ style.innerHTML = `
 document.head.appendChild(style);
 
 function processSingleCandidate(event, candidateId) {
-  event.stopPropagation();
+  if (event) event.stopPropagation();
   const toast = showToast("Running AI Vision extraction...", "loading", true);
   fetch(`/api/inbox/candidates/${candidateId}/prepare-task?force=true`, {
     method: "POST"
@@ -591,6 +608,41 @@ function processSingleCandidate(event, candidateId) {
       console.error(err);
     });
 }
+
+async function processAndReviewCandidate(event, candidateId) {
+  if (event) event.stopPropagation();
+
+  const candidate = currentCandidates.find(c => c.id === candidateId);
+  if (candidate && (candidate.status === "AI_PROCESSED" || candidate.status === "CREATED")) {
+    openTaskReviewModal(candidateId);
+    return;
+  }
+
+  const toast = showToast("Running AI Vision extraction & opening review...", "loading", true);
+
+  try {
+    const res = await fetch(`/api/inbox/candidates/${candidateId}/prepare-task?force=true`, {
+      method: "POST"
+    });
+    const data = await res.json();
+
+    if (res.ok) {
+      toast.update("Analysis completed! Opening review...", "success");
+      setTimeout(() => toast.dismiss(), 1500);
+      loadCandidates();
+      openTaskReviewModal(candidateId);
+    } else {
+      toast.update(data.detail || "AI Vision extraction failed.", "error");
+      setTimeout(() => toast.dismiss(), 3000);
+      openTaskReviewModal(candidateId);
+    }
+  } catch (err) {
+    toast.update(`Error: ${err.message}`, "error");
+    setTimeout(() => toast.dismiss(), 3000);
+    openTaskReviewModal(candidateId);
+  }
+}
+window.processAndReviewCandidate = processAndReviewCandidate;
 
 function bulkOpenNotionTasks() {
   if (selectedCandidateIds.size === 0) return;
